@@ -9,7 +9,7 @@ import fr.imt.albi.pacman.utils.Wall;
 public class Pacman extends Creature {
 	/* L'angle d'ouverture mini de sa bouche quand il avance */
 	public static final int MIN_MOUTH_ANGLE = 10;
-	/* L'angle d'ouverture mini de sa bouche quand il avance */
+	/* L'angle d'ouverture maxi de sa bouche quand il avance */
 	public static final int MAX_MOUTH_ANGLE = 40;
 	/* Sa vitesse sur la grille */
 	public static final int SPEED_PACMAN = 10;
@@ -44,6 +44,7 @@ public class Pacman extends Creature {
 
 	public void removeLife() {
 		// TODO Méthode qui gère le retrait d'une vie à Pacman
+		this.currentLife--;
 	}
 
 	public int getCurrentLife() {
@@ -53,16 +54,22 @@ public class Pacman extends Creature {
 	public void updateScoreFood() {
 		// TODO Là, si Pacman a reçu un power-up, faut incrémenter le score comme il se
 		// doit.
+		this.currentScore += Food.POWER_UP_SCORE;
 	}
 
 	private void checkIfNewLife() {
 		// TODO Là, faut vérifier si le Pacman a atteint la limite pour avoir une vie
 		// supplémentaire :)
+		if(this.currentScore >= this.nextLifeThreshold) {
+			this.currentLife++;
+			this.nextLifeThreshold += LIFE_POINT_THRESHOLD;
+		}
 	}
 
 	public void updateScoreGhost() {
 		// TODO Là, si Pacman bouffe un fantome, faut incrémenter le score comme il faut
 		// aussi.
+		this.currentScore += Ghost.GHOST_SCORE;
 	}
 
 	public int getCurrentScore() {
@@ -107,6 +114,8 @@ public class Pacman extends Creature {
 			 * déplacer - garder une trace du dernier déplacement effectué (y a un attribut
 			 * de classe pour ça) - Animer sa bouche ;)
 			 */
+			
+			
 		} else {
 			/*
 			 * TODO Si le déplacement n'est possible, il faut pouvoir récupérer les
@@ -211,6 +220,12 @@ public class Pacman extends Creature {
 				 * qu'il y avait dedans - Mettre à jour le score - Sachant qu'un food peut être
 				 * un powerup, y a un truc à gérer :)
 				 */
+				food.setFood(null);
+				food.draw();
+				if (food.isPowerUp()) {
+					this.isEmpowered = true;
+				}
+				this.updateScoreFood();
 			}
 		}
 	}

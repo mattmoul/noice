@@ -120,11 +120,29 @@ abstract class Creature {
 
 		// TODO Ici, il faut gérer l'évolution des coordonnées en fonction de la
 		// direction choisie :)
-		if (direction.equals(PacManLauncher.UP) || direction.equals(PacManLauncher.DOWN)
-				|| direction.equals(PacManLauncher.LEFT) || direction.equals(PacManLauncher.RIGHT)) {
+		
+		if(direction.equals(PacManLauncher.UP)) {
+			int[] diff_move = this.checkCollision(PacManLauncher.UP, 0, -1);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
+			
+		} else if(direction.equals(PacManLauncher.DOWN)) {
+			int[] diff_move = this.checkCollision(PacManLauncher.DOWN, 0 , 1);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
+			
+		} else if(direction.equals(PacManLauncher.RIGHT)) {
+			int[] diff_move = this.checkCollision(PacManLauncher.RIGHT, 1, 0);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
+			
+		} else if(direction.equals(PacManLauncher.LEFT)) {
+			int[] diff_move = this.checkCollision(PacManLauncher.LEFT, -1, 0);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
 		}
 
-		ret[0] = xMove;
+		ret[0] = xMove ;
 		ret[1] = yMove;
 		return ret;
 	}
