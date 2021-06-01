@@ -29,6 +29,7 @@ public class Pacman extends Creature {
 	private int currentLife;
 	private int currentScore;
 	private int nextLifeThreshold;
+	public int given_Life = 0;
 
 	public Pacman(int size, int x, int y) {
 		this.pacman = new ArcCircle(size, x, y, PACMAN_COLOR, 0, 360);
@@ -53,11 +54,26 @@ public class Pacman extends Creature {
 	public void updateScoreFood() {
 		// TODO Là, si Pacman a reçu un power-up, faut incrémenter le score comme il se
 		// doit.
+		Figure[][] map = this.gameMap.getMap();
+		Figure f = map[getX()][getY()];
+		if (f instanceof Food) {
+			Food food = (Food) f;
+			//si food normal donne point
+			if(food.isPowerUp()) {
+				Score.setScore( Integer.toString( this.currentScore + Food.POWER_UP_SCORE ) );
+		   }
+		
+	}
 	}
 
 	private void checkIfNewLife() {
 		// TODO Là, faut vérifier si le Pacman a atteint la limite pour avoir une vie
 		// supplémentaire :)
+		
+		if(this.currentScore-given_Life*this.nextLifeThreshold>=this.nextLifeThreshold) {
+			given_Life++;
+			this.currentLife++;			
+		}
 	}
 
 	public void updateScoreGhost() {
