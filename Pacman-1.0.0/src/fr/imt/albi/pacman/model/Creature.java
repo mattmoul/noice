@@ -122,22 +122,22 @@ abstract class Creature {
 		// direction choisie :)
 		
 		if(direction.equals(PacManLauncher.UP)) {
-			int[] diff_move = this.checkCollision(PacManLauncher.UP, 0, -1);
+			int[] diff_move = this.checkCollision(PacManLauncher.UP, 0, -Pacman.SPEED_PACMAN);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.DOWN)) {
-			int[] diff_move = this.checkCollision(PacManLauncher.DOWN, 0 , 1);
+			int[] diff_move = this.checkCollision(PacManLauncher.DOWN, 0 , Pacman.SPEED_PACMAN);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.RIGHT)) {
-			int[] diff_move = this.checkCollision(PacManLauncher.RIGHT, 1, 0);
+			int[] diff_move = this.checkCollision(PacManLauncher.RIGHT, Pacman.SPEED_PACMAN, 0);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.LEFT)) {
-			int[] diff_move = this.checkCollision(PacManLauncher.LEFT, -1, 0);
+			int[] diff_move = this.checkCollision(PacManLauncher.LEFT, -Pacman.SPEED_PACMAN, 0);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 		}
