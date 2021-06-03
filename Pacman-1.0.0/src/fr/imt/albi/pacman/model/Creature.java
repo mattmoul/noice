@@ -17,6 +17,27 @@ abstract class Creature {
 	public abstract int getY();
 
 	public abstract int getWidth();
+	
+	public int[] teleport(int xMove, int yMove, int xPosition, int yPosition){
+		int[] ret = new int[2];
+		int xlim=gameMap.getSizeCase()*gameMap.getNbCases();
+		int ylim=gameMap.getSizeCase()*gameMap.getNbCases();
+		if (xPosition+xMove >xlim) {
+			xMove=-xlim;
+		}
+		else if (yPosition+yMove>ylim) {
+			yMove=-ylim;
+		}
+		else if (xPosition+xMove<0) {
+			xMove=xlim;
+		}
+		else if (yPosition+yMove<0) {
+			yMove=ylim;
+		}
+		ret[0] = xMove ;
+		ret[1] = yMove;
+		return ret;
+	}
 
 	public void setMap(GameMap gameMap) {
 		this.gameMap = gameMap;
@@ -125,9 +146,15 @@ abstract class Creature {
 			int[] diff_move = this.checkCollision(PacManLauncher.UP, 0, -Pacman.SPEED_PACMAN);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
+			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.DOWN)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.DOWN, 0 , Pacman.SPEED_PACMAN);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
+			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
@@ -135,9 +162,15 @@ abstract class Creature {
 			int[] diff_move = this.checkCollision(PacManLauncher.RIGHT, Pacman.SPEED_PACMAN, 0);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
+			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.LEFT)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.LEFT, -Pacman.SPEED_PACMAN, 0);
+			xMove = diff_move[0];
+			yMove = diff_move[1];
+			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 		}
