@@ -8,3 +8,7 @@ complété par la meilleure équipe composée de :
 * Thaïs  
 * Matteo 
 <h2>tous issus de la meilleure promo : IFIE2023</h2> 
+* Item 1
+* Item 2
+  * Item 2a
+  * Item 2b
