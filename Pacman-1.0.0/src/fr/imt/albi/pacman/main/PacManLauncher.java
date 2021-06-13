@@ -14,6 +14,7 @@ public class PacManLauncher {
 	public static final String DOWN = "DOWN";
 	public static final String LEFT = "LEFT";
 	public static final String RIGHT = "RIGHT";
+	public static final boolean TRACKING = true;
 	private static final int NBR_LVL = 3;
 	private GameMap maps;
 	private final Pacman pacman;
@@ -111,9 +112,12 @@ public class PacManLauncher {
 			}
 
 			this.collisionGhost();
-
+			
+			int PacPosX = this.pacman.getX();
+			int PacPosY = this.pacman.getY();
+			
 			for (Ghost g : this.ghost) {
-				g.move();
+				g.move(PacPosX, PacPosY, TRACKING);
 			}
 			this.collisionGhost();
 			Canvas.getCanvas().redraw(this.pacman.getCurrentScore(), this.pacman.getCurrentLife(), Score.getScore());
@@ -135,6 +139,7 @@ public class PacManLauncher {
 					if (cpt == i) {
 						this.ghost[cpt].setLocation(t[0], t[1]);
 						this.ghost[cpt].setNormalState();
+						this.ghost[cpt].setStuckState();
 						this.pacman.updateScoreGhost();
 					}
 					cpt++;
@@ -148,6 +153,7 @@ public class PacManLauncher {
 			int cpt = 0;
 			for (Integer[] t : gs) {
 				this.ghost[cpt].setLocation(t[0], t[1]);
+				this.ghost[cpt].setStuckState();
 				cpt++;
 			}
 		}

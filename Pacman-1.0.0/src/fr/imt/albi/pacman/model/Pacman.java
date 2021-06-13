@@ -12,7 +12,7 @@ public class Pacman extends Creature {
 	/* L'angle d'ouverture maxi de sa bouche quand il avance */
 	public static final int MAX_MOUTH_ANGLE = 40;
 	/* Sa vitesse sur la grille */
-	public static final int SPEED_PACMAN = 10;
+	public static final int SPEED_PACMAN = 20;
 	/* La couleur de Pacman */
 	private static final String PACMAN_COLOR = "yellow";
 	/* Le nombre initial de vies de Pacman */
@@ -144,54 +144,6 @@ public class Pacman extends Creature {
 			this.lastMovement = direction;
 		}
 	}
-
-	/**
-	 * Cette méthode permet de vérifier si le déplacement demandé est effectivement
-	 * faisable.
-	 *
-	 * @param direction La direction choisie
-	 * @return true si possible, false sinon
-	 */
-	private boolean isMovePossible(String direction) {
-        boolean canMove = false;
-        Figure[][] map = this.gameMap.getMap();
-
-        if (this.getX() % this.gameMap.getSizeCase() == 0 && this.getY() % this.gameMap.getSizeCase() == 0) {
-            int[] position = this.getColumnAndRow();
-            int xPosition = position[0];
-            int yPosition = position[1];
-
-            Figure fUp = map[yPosition - 1][xPosition];
-            Figure fDown = map[yPosition + 1][xPosition];
-            Figure fleft = map[yPosition][xPosition - 1];
-            Figure fRight = map[yPosition][xPosition + 1];
-
-            switch (direction) {
-                case PacManLauncher.UP:
-                    if (!(fUp instanceof Wall)) {
-                        canMove = true;
-                    }
-                    break;
-                case PacManLauncher.DOWN:
-                    if (!(fDown instanceof Wall)) {
-                        canMove = true;
-                    }
-                    break;
-                case PacManLauncher.LEFT:
-                    if (!(fleft instanceof Wall)) {
-                        canMove = true;
-                    }
-                    break;
-                case PacManLauncher.RIGHT:
-                    if (!(fRight instanceof Wall)) {
-                        canMove = true;
-                    }
-                    break;
-            }
-        }
-
-        return canMove;
-    }
 
 	@Override
 	public void move(int xMove, int yMove) {

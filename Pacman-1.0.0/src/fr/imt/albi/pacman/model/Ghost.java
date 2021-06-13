@@ -11,11 +11,19 @@ public class Ghost extends Creature {
 
     public static final int SPEED_GHOST = 10;
     public static final int GHOST_SCORE = 100;
+    /* Nombre de tour où le déplacement du fantôme sera aléatoire */
+    public static final int STUCK_COOLDOWN = 30;
+    /* Distance maximale à laquelle le fantôme va traquer le PacMan */
+    public static final double LIM_DIST = 150.0;
     private final GhostSkin ghostSkin;
     private final String ghostColor;
     private String previousMove;
+    private String directionX;
+    private String directionY;
     private int counterUTurn;
     private int counterFear;
+    /* Compteur du nombre de tour restant en état Stuck (déplacement aléatoire) */
+    private int counterStuck;
 
     public Ghost(int size, int x, int y, String color) {
         this.previousMove = PacManLauncher.UP;
@@ -23,40 +31,204 @@ public class Ghost extends Creature {
 
         this.counterFear = 0;
         this.ghostColor = color;
+        
+        /* Initialement les fantômes sont stuck pour qu'ils se séparent */
+        this.counterStuck = 20;
 
         this.ghostSkin = new GhostSkin(size, x, y, color);
     }
 
-    public void move() {
+    public void move(int PacPosX, int PacPosY, boolean tracking) {
         if (this.counterFear == 0) {
             this.setNormalState();
         }
-        if (this.counterFear % 2 == 1 || this.counterFear == 0) {
-            if (this.counterFear > 0) {
-                this.counterFear--;
-            }
-            this.counterUTurn--;
-            if (this.counterUTurn == 0) {
-                switch (this.previousMove) {
-                    case PacManLauncher.UP:
-                        this.move(PacManLauncher.DOWN);
-                        break;
-                    case PacManLauncher.DOWN:
-                        this.move(PacManLauncher.UP);
-                        break;
-                    case PacManLauncher.LEFT:
-                        this.move(PacManLauncher.RIGHT);
-                        break;
-                    case PacManLauncher.RIGHT:
-                        this.move(PacManLauncher.LEFT);
-                        break;
-                }
-                this.initUTurnCounter();
-            } else {
-                checkCrossing(this.previousMove);
-            }
+        
+        /* Calcul de la distance au PacMan en X, Y, et directe */
+        int GhostPosX = this.getX();
+    	int GhostPosY = this.getY();
+    	int diffX = GhostPosX - PacPosX;
+    	int diffY = GhostPosY - PacPosY;
+    	double dist_tot = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2));
+        
+        //Tracking off OU distance au PacMan trop grande OU le ghost est "stuck"
+        if (!tracking || dist_tot > LIM_DIST || this.counterStuck > 0) {
+        	
+	        if (this.counterFear % 2 == 1 || this.counterFear == 0) {
+	            if (this.counterFear > 0) {
+	                this.counterFear--;
+	            }
+	         
+	        /* Décrémentation de l'état stuck du fantôme */
+	        if (this.counterStuck > 0) {
+	        	this.counterStuck--;
+	        }
+	        
+	            this.counterUTurn--;
+	            if (this.counterUTurn == 0) {
+	                switch (this.previousMove) {
+	                    case PacManLauncher.UP:
+	                        this.move(PacManLauncher.DOWN);
+	                        break;
+	                    case PacManLauncher.DOWN:
+	                        this.move(PacManLauncher.UP);
+	                        break;
+	                    case PacManLauncher.LEFT:
+	                        this.move(PacManLauncher.RIGHT);
+	                        break;
+	                    case PacManLauncher.RIGHT:
+	                        this.move(PacManLauncher.LEFT);
+	                        break;
+	                }
+	                this.initUTurnCounter();
+	            } else {
+	                checkCrossing(this.previousMove);
+	            }
+	        } else {
+	            this.counterFear--;
+	        }
+	        
+	    //Tracking activé
+	        
         } else {
-            this.counterFear--;
+        	if (this.counterFear == 0) {
+                this.setNormalState();
+        	}
+        	
+        	if (this.counterFear % 2 == 1 || this.counterFear == 0) {
+        		
+        		// Le fantôme fuit le PacMan
+	            if (this.counterFear > 0) {
+	            	
+	            	/* On cherche à augmenter les distances en X et en Y
+	            	 * On calcule dans quelle direction en X et en Y le fantôme doit s'échapper
+	            	 * On augmente d'abord l'écart de distance le plus faible (en X ou en Y) */ 
+	            	if (GhostPosX < PacPosX) {
+            			this.directionX = PacManLauncher.LEFT;
+            		} else {
+            			this.directionX = PacManLauncher.RIGHT;
+            		}
+	            	
+	            	if (GhostPosY < PacPosY) {
+            			this.directionY = PacManLauncher.UP;
+            		} else {
+            			this.directionY = PacManLauncher.DOWN;
+            		}
+	            	
+	            	//Cas dx < dy
+	            	if (Math.abs(diffX) < Math.abs(diffY)) {
+	            		
+	            		/* On vérifie si on peut augmenter la distance la plus courte */
+	            		if (this.isMovePossible(this.directionX)) {
+	            			this.move(this.directionX);
+	            			this.previousMove = directionX;
+	            		
+	            		/* Sinon, on vérifie si on peut augmenter la distance la plus longue */
+	            		} else if (this.isMovePossible(this.directionY)) {
+	            			this.move(this.directionY);
+	            			this.previousMove = directionY;
+	            		
+	            		/* Sinon, on se déplace dans l'une des directions restantes*/
+	            		} else if (this.directionX == PacManLauncher.LEFT) {
+	            			this.move(PacManLauncher.RIGHT);
+	            			this.previousMove = PacManLauncher.RIGHT;
+	            			
+	            		} else {
+	            			this.move(PacManLauncher.LEFT);
+	            			this.previousMove = PacManLauncher.LEFT;
+	            		}
+	            	
+	            	//Cas dy < dx
+	            	} else {
+	            		
+	            		if (this.isMovePossible(this.directionY)) {
+	            			this.move(this.directionY);
+	            			this.previousMove = directionY;
+	            			
+	            		} else if (this.isMovePossible(this.directionX)) {
+	            			this.move(this.directionX);
+	            			this.previousMove = directionX;
+	            		
+	            		} else if (this.directionY == PacManLauncher.UP) {
+	            			this.move(PacManLauncher.DOWN);
+	            			this.previousMove = PacManLauncher.DOWN;
+	            			
+	            		} else {
+	            			this.move(PacManLauncher.UP);
+	            			this.previousMove = PacManLauncher.UP;
+	            		}	
+	            	}
+	            	this.counterFear--;
+	            
+	            // Le fantôme chasse le PacMan
+	            } else {           	
+	            	
+	            	if (GhostPosX < PacPosX) {
+            			this.directionX = PacManLauncher.RIGHT;
+            		} else {
+            			this.directionX = PacManLauncher.LEFT;
+            		}
+	            	
+	            	if (GhostPosY < PacPosY) {
+            			this.directionY = PacManLauncher.DOWN;
+            		} else {
+            			this.directionY = PacManLauncher.UP;
+            		}
+	            	
+	            	//Cas dx > dy
+	            	if (Math.abs(diffX) > Math.abs(diffY)) {
+	            		
+	            		if (this.isMovePossible(this.directionX)) {
+	            			this.move(this.directionX);
+	            			this.previousMove = directionX;
+	            			
+	            		} else if (this.isMovePossible(this.directionY)) {
+	            			this.move(this.directionY);
+	            			this.previousMove = directionY;
+	            		
+	            		} else if (this.directionY == PacManLauncher.UP) {
+	            			this.move(PacManLauncher.DOWN);
+	            			this.previousMove = PacManLauncher.DOWN;
+	            			this.setStuckState();
+	            			
+	            		} else {
+	            			this.move(PacManLauncher.UP);
+	            			this.previousMove = PacManLauncher.UP;
+	            			this.setStuckState();
+	            		}
+	            	
+	            	//Cas dy > dx
+	            	} else {
+	            		if (this.isMovePossible(this.directionY)) {
+	            			this.move(this.directionY);
+	            			this.previousMove = directionY;
+	            			
+	            		} else if (this.isMovePossible(this.directionX)) {
+	            			this.move(this.directionX);
+	            			this.previousMove = directionX;
+	            		
+	            		} else if (this.directionX == PacManLauncher.RIGHT) {
+	            			this.move(PacManLauncher.LEFT);
+	            			this.previousMove = PacManLauncher.LEFT;
+	            			this.setStuckState();
+	            			
+	            		} else {
+	            			this.move(PacManLauncher.RIGHT);
+	            			this.previousMove = PacManLauncher.RIGHT;
+	            			this.setStuckState();
+	            		}	
+	            	}
+	            	
+	            	int NewGhostPosX = this.getX();
+	            	int NewGhostPosY = this.getY();
+	            	
+	            	/* Si le fantôme n'a pas bougé, il est stuck et aura des mouvements aléatoires */
+	            	if (NewGhostPosX == GhostPosX && NewGhostPosY == GhostPosY) {
+	            		this.setStuckState();
+	            	}
+	            }
+        	} else {
+        		this.counterFear--;
+        	}
         }
     }
 
@@ -96,6 +268,10 @@ public class Ghost extends Creature {
         for (int i = 0; i < 5; i++) {
             figures[i].setColor("blue");
         }
+    }
+    
+    public void setStuckState() {
+    	this.counterStuck = this.STUCK_COOLDOWN;
     }
 
     public void setNormalState() {
@@ -200,7 +376,7 @@ public class Ghost extends Creature {
         ArrayList<Figure> toGo = new ArrayList<Figure>();
 
         for (Figure f : listF) {
-            if (f.getClass().getName().compareTo("view.Wall") != 0) {
+            if (!(f instanceof Wall)) {
                 toGo.add(f);
             }
         }

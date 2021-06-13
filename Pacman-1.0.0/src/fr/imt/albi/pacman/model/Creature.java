@@ -18,10 +18,14 @@ abstract class Creature {
 
 	public abstract int getWidth();
 	
-	public int[] teleport(int xMove, int yMove, int xPosition, int yPosition){
+	public int[] teleport(int[] diff_move, int xPosition, int yPosition){
 		int[] ret = new int[2];
+		int xMove = diff_move[0];
+		int yMove = diff_move[1];
+		
 		int xlim=gameMap.getSizeCase()*gameMap.getNbCases();
 		int ylim=gameMap.getSizeCase()*gameMap.getNbCases();
+		
 		if (xPosition+xMove >xlim) {
 			xMove=-xlim;
 		}
@@ -92,6 +96,56 @@ abstract class Creature {
 		return result;
 	}
 
+	
+	/**
+	 * Cette méthode permet de vérifier si le déplacement demandé est effectivement
+	 * faisable.
+	 *
+	 * @param direction La direction choisie
+	 * @return true si possible, false sinon
+	 */
+
+	public boolean isMovePossible(String direction) {
+        boolean canMove = false;
+        Figure[][] map = this.gameMap.getMap();
+
+        if (this.getX() % this.gameMap.getSizeCase() == 0 && this.getY() % this.gameMap.getSizeCase() == 0) {
+            int[] position = this.getColumnAndRow();
+            int xPosition = position[0];
+            int yPosition = position[1];
+
+            Figure fUp = map[yPosition - 1][xPosition];
+            Figure fDown = map[yPosition + 1][xPosition];
+            Figure fleft = map[yPosition][xPosition - 1];
+            Figure fRight = map[yPosition][xPosition + 1];
+
+            switch (direction) {
+                case PacManLauncher.UP:
+                    if (!(fUp instanceof Wall)) {
+                        canMove = true;
+                    }
+                    break;
+                case PacManLauncher.DOWN:
+                    if (!(fDown instanceof Wall)) {
+                        canMove = true;
+                    }
+                    break;
+                case PacManLauncher.LEFT:
+                    if (!(fleft instanceof Wall)) {
+                        canMove = true;
+                    }
+                    break;
+                case PacManLauncher.RIGHT:
+                    if (!(fRight instanceof Wall)) {
+                        canMove = true;
+                    }
+                    break;
+            }
+        }
+
+        return canMove;
+    }
+	
 	protected int[] getColumnAndRow() {
 		Figure[][] map = this.gameMap.getMap();
 		int colonne = this.getX() / this.gameMap.getSizeCase();
@@ -144,33 +198,30 @@ abstract class Creature {
 		
 		if(direction.equals(PacManLauncher.UP)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.UP, 0, -Pacman.SPEED_PACMAN);
-			xMove = diff_move[0];
-			yMove = diff_move[1];
-			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			
+			diff_move = this.teleport(diff_move, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
+			
 		} else if(direction.equals(PacManLauncher.DOWN)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.DOWN, 0 , Pacman.SPEED_PACMAN);
-			xMove = diff_move[0];
-			yMove = diff_move[1];
-			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			
+			diff_move = this.teleport(diff_move, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.RIGHT)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.RIGHT, Pacman.SPEED_PACMAN, 0);
-			xMove = diff_move[0];
-			yMove = diff_move[1];
-			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			
+			diff_move = this.teleport(diff_move, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 			
 		} else if(direction.equals(PacManLauncher.LEFT)) {
 			int[] diff_move = this.checkCollision(PacManLauncher.LEFT, -Pacman.SPEED_PACMAN, 0);
-			xMove = diff_move[0];
-			yMove = diff_move[1];
-			diff_move = this.teleport(xMove, yMove, xPosition, yPosition);
+			
+			diff_move = this.teleport(diff_move, xPosition, yPosition);
 			xMove = diff_move[0];
 			yMove = diff_move[1];
 		}
